@@ -1,0 +1,19 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
+  height: 100vh;
+  padding: 0px 200px;
+  background: #f5f5f5;
+}
+
+.ant-modal-mask {
+  backdrop-filter: blur(67px) saturate(180%) brightness(0.96) contrast(0.8);
+}
