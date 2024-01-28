@@ -42,6 +42,28 @@ const TodoTable = () => {
     form.resetFields();
   };
 
+  const handleDelete = async (id) => {
+    Modal.confirm({
+      title: "Delete Todo",
+      content: "Are you sure you want to delete this todo?",
+      okText: "Yes",
+      cancelText: "No",
+      okButtonProps: {
+        danger: true,
+      },
+      centered: true,
+      onOk: async () => {
+        try {
+          await axios.delete(`http://localhost:3000/api/todos/?id=${id}`);
+          refetch();
+          message.success("Todo deleted successfully");
+        } catch (error) {
+          message.error("Something went wrong");
+        }
+      },
+    });
+  };
+
   const columns = [
     {
       title: "Sr No.",
@@ -63,6 +85,9 @@ const TodoTable = () => {
       render: (text, record) => (
         <Space size="middle">
           <Button
+            disabled
+            Tooltip
+            title="Work in progress"
             type="primary"
             onClick={() => {
               setOpen(true);
@@ -71,7 +96,11 @@ const TodoTable = () => {
           >
             Edit
           </Button>
-          <Button type="primary" danger onClick={() => alert("foo")}>
+          <Button
+            type="primary"
+            danger
+            onClick={() => handleDelete(record?._id)}
+          >
             Delete
           </Button>
         </Space>
