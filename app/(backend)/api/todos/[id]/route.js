@@ -9,3 +9,10 @@ export async function PUT(req, { params }) {
   await Todo.findByIdAndUpdate(id, { title, description });
   return NextResponse.json({ message: "Topic Updated" }, { status: 200 });
 }
+
+export async function GET(req, { params }) {
+  const { id } = params;
+  await connectToMongoDb();
+  const todos = await Todo.findOne({ _id: id });
+  return NextResponse.json({ todos }, { status: 200 });
+}

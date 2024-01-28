@@ -1,6 +1,6 @@
+import { NextResponse } from "next/server";
 import connectToMongoDb from "@/lib/mongoDb";
 import Todo from "@/models/todoSchema";
-import { NextResponse } from "next/server";
 
 export async function POST(req) {
   const { title, description } = await req.json();
