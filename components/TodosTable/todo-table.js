@@ -1,22 +1,83 @@
 "use client";
 
-import { Button, Card, Form, Modal, Table } from "antd";
-import { columns } from "./todo-table-columns";
+import { Button, Card, Form, Input, Modal, Space, Table, message } from "antd";
 import useTodos from "@/services/todo.hook";
 import { useState } from "react";
+import TextArea from "antd/es/input/TextArea";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import axios from "axios";
 
 const TodoTable = () => {
   const [open, setOpen] = useState(false);
+  const [toggleEdit, setToggleEdit] = useState(false);
 
-  const { form } = Form.useForm();
+  const { Item } = Form;
 
-  const { data: todosData, isFetching, error } = useTodos();
+  const [form] = Form.useForm();
+
+  const { data: todosData, isFetching, error, refetch } = useTodos();
 
   const { todos } = todosData || [];
 
   console.log("data", todos);
   console.log("isFetching", isFetching);
   console.log("error", error);
+
+  const addTodoMutation = useMutation({
+    mutationFn: (newTodo) =>
+      axios.post("http://localhost:3000/api/todos", newTodo),
+    onSuccess: () => {
+      setOpen(false);
+      refetch();
+      message.success("Todo added successfully");
+    },
+    onError: () => {
+      message.error("Something went wrong");
+    },
+  });
+
+  const handleSubmit = async (payload) => {
+    addTodoMutation.mutate(payload);
+
+    form.resetFields();
+  };
+
+  const columns = [
+    {
+      title: "Sr No.",
+      dataIndex: "id",
+      render: (text, record, index) => index + 1,
+    },
+    {
+      title: "Title",
+      dataIndex: "title",
+      key: "title",
+    },
+    {
+      title: "Description",
+      dataIndex: "description",
+      key: "description",
+    },
+    {
+      title: "Action",
+      render: (text, record) => (
+        <Space size="middle">
+          <Button
+            type="primary"
+            onClick={() => {
+              setOpen(true);
+              setToggleEdit(true);
+            }}
+          >
+            Edit
+          </Button>
+          <Button type="primary" danger onClick={() => alert("foo")}>
+            Delete
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
   if (error) {
     return <div>Error: {error.message}</div>;
@@ -32,7 +93,13 @@ const TodoTable = () => {
         }}
         extra={
           <>
-            <Button type="primary" onClick={() => setOpen(true)}>
+            <Button
+              type="primary"
+              onClick={() => {
+                setOpen(true);
+                setToggleEdit(false);
+              }}
+            >
               Add Todo
             </Button>
           </>
@@ -48,7 +115,12 @@ const TodoTable = () => {
 
       <Modal
         open={open}
-        onCancel={() => setOpen(false)}
+        onCancel={() => {
+          setOpen(false);
+          setToggleEdit(false);
+          form.resetFields();
+        }}
+        onOk={form.submit}
         centered
         closable={false}
         title={
@@ -60,11 +132,25 @@ const TodoTable = () => {
                 alignItems: "center",
               }}
             >
-              <h3>Add Todo</h3>
+              {toggleEdit ? <h3>Edit Todo</h3> : <h3>Add Todo</h3>}
             </div>
           </>
         }
-      ></Modal>
+      >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          <Item name={"title"}>
+            <Input placeholder="Title" />
+          </Item>
+          <Item
+            name={"description"}
+            style={{
+              marginBottom: "40px",
+            }}
+          >
+            <TextArea placeholder="Description" maxLength={100} showCount />
+          </Item>
+        </Form>
+      </Modal>
     </>
   );
 };

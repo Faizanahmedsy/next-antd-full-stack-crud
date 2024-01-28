@@ -12,6 +12,9 @@ body {
   height: 100vh;
   padding: 0px 200px;
   background: #a5b4fc;
+  /* background: linear-gradient(to right, #000000, #20262e); */
+  /* background: url("/purple.png") center center/cover no-repeat fixed; */
+  /* backdrop-filter: blur(0.7px) saturate(180%) brightness(0.96) contrast(1); */
 }
 
 .ant-modal-mask {
